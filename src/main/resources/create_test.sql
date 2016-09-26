@@ -24,3 +24,5 @@ maxvalue 9999999999
 start with 1000
 increment by 1
 cache 20;
+
+insert into test_user (USER_ID, USER_NAME, USER_PASSWORD) values (TEST_USER_SEQUENCE.NEXTVAL, 'admin', 'admin');

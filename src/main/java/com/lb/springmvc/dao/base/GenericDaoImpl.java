@@ -56,6 +56,7 @@ public class GenericDaoImpl<T> implements GenericDao<T> {
 	/**
 	 * @Title: getEntityName
 	 * @Description: 返回的源代码中的基础类的简单名称
+	 * 定义泛型方法时，必须在返回值前边加一个<T>，来声明这是一个泛型方法，持有一个泛型T，然后才可以用泛型T作为方法的返回值。
 	 * @return
 	 * @return: String
 	 */
