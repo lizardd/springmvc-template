@@ -125,11 +125,11 @@
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/com.oracle/ojdbc14 -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>ojdbc14</artifactId>
 			<version>10.2.0.4.0</version>
-		</dependency>
+		</dependency> -->
 		
 		<!-- 连接MySQL数据库需要的jar包 -->
 		<dependency>

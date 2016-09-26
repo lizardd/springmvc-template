@@ -1,9 +1,12 @@
 package com.lb.springmvc.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.lb.springmvc.dao.UserDao;
+import com.lb.springmvc.exception.BusinessException;
 import com.lb.springmvc.model.User;
 import com.lb.springmvc.service.UserService;
 
@@ -18,15 +21,17 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	public User findByUserNameAndPassword(String userName, String password) {
-		return (User) userDao.getSession()
-				.createQuery("from User o where o.userName =:userName and o.password =:password")
-				.setString("userName", userName)
-				.setString("password", password)
-				.uniqueResult();
+		List<User> users = userDao.getByObject(new User(userName,password));
+		if(users == null || users.isEmpty()){
+			return null;
+		} else if(users.size()==1){
+			return users.get(0);
+		} else {
+			throw new BusinessException("数据异常，存在 多条 同用户名与密码记录！");
+		}
 	}
-	
+
 	public long getUsersCount() {
-		return userDao.getCount();
+		return 0;
 	}
-	
 }
