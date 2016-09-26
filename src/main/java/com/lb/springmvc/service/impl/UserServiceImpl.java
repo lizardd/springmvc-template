@@ -9,9 +9,10 @@ import com.lb.springmvc.dao.UserDao;
 import com.lb.springmvc.exception.BusinessException;
 import com.lb.springmvc.model.User;
 import com.lb.springmvc.service.UserService;
+import com.lb.springmvc.service.base.impl.BaseServiceImpl;
 
 @Service(value="userService")
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl extends BaseServiceImpl<User, UserDao> implements UserService{
 	
 	@Autowired
 	private UserDao userDao;
@@ -29,9 +30,5 @@ public class UserServiceImpl implements UserService{
 		} else {
 			throw new BusinessException("数据异常，存在 多条 同用户名与密码记录！");
 		}
-	}
-
-	public long getUsersCount() {
-		return 0;
 	}
 }

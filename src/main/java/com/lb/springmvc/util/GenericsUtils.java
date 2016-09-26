@@ -1,7 +1,10 @@
 package com.lb.springmvc.util;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 泛型工具类
@@ -21,7 +24,7 @@ public class GenericsUtils {
 	 *         <code>Object.class</code>
 	 */
 	@SuppressWarnings({ "rawtypes" })
-	private static Class getSuperClassGenricType(Class clazz, int index) {
+	public static Class getSuperClassGenricType(Class clazz, int index) {
 		// 得到泛型父类
 		Type genType = clazz.getGenericSuperclass();
 		// 如果没有实现ParameterizedType接口，即不支持泛型，直接返回Object.class
@@ -42,6 +45,7 @@ public class GenericsUtils {
 
 	/**
 	 * 通过反射,获得指定类的父类的第一个泛型参数的实际类型. 如BuyerServiceBean extends DaoSupport<Buyer>
+	 * 
 	 * @param clazz
 	 *            clazz 需要反射的类,该类必须继承泛型父类
 	 * @return 泛型参数的实际类型, 如果没有实现ParameterizedType接口，即不支持泛型，所以直接返回
@@ -50,5 +54,52 @@ public class GenericsUtils {
 	@SuppressWarnings({ "rawtypes" })
 	public static Class getSuperClassGenricType(Class clazz) {
 		return getSuperClassGenricType(clazz, 0);
+	}
+
+	/**
+	 * 获取一个对象上指定类型的所有域的集合
+	 * 
+	 * @param object
+	 *            指定对象
+	 * @param type
+	 *            指定类型
+	 * @return 域的集合
+	 */
+	public static List<Field> getFieldsByType(Object object, Class<?> type) {
+		List<Field> list = new ArrayList<Field>();
+		Field[] fields = object.getClass().getDeclaredFields();
+		for (Field field : fields) {
+			if (field.getType().isAssignableFrom(type)) {
+				list.add(field);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * 在指定对象上获取指定域
+	 * 
+	 * @param object
+	 *            指定对象
+	 * @param fieldName
+	 *            域名
+	 * @return 指定类型域
+	 */
+	public static Object getObjectByField(Object object, String fieldName) {
+		Object result = null;
+		try {
+			Field field = object.getClass().getDeclaredField(fieldName);
+			// 保存它的访问标识符
+			boolean accessible = field.isAccessible();
+			// 如何为私有，将其设置为可以访问
+			field.setAccessible(true);
+			// 获取域
+			result = field.get(object);
+			// 设置访问标识符
+			field.setAccessible(accessible);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return result;
 	}
 }

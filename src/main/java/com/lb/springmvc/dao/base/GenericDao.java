@@ -2,6 +2,7 @@ package com.lb.springmvc.dao.base;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.SessionFactory;
 
@@ -71,4 +72,27 @@ public interface GenericDao<T> {
 	 * @return 全体数据
 	 */
 	public List<T> getByObject(T object);
+	
+	/**
+	* @Title: getForeignKey 
+	* @Description: 查找实体是否有外键
+	* @param @param entity
+	* @param @param PK
+	* @param @return    设定文件 
+	* @return Map<String,String>    返回类型 
+	* @throws
+	 */
+	public Map<String,String> getForeignKey();
+	
+	/**
+	* @Title: hasTableRecords 
+	* @Description: 查询实体某一外键是否有记录
+	* @param @param tableName
+	* @param @param FK
+	* @param @param entityIds
+	* @param @return    设定文件 
+	* @return int    返回类型 
+	* @throws
+	 */
+	public int hasTableRecords(String tableName,String FK,Serializable ... entityIds);
 }

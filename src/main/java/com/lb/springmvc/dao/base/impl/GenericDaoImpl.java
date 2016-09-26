@@ -1,16 +1,20 @@
-package com.lb.springmvc.dao.base;
+package com.lb.springmvc.dao.base.impl;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Example;
+import org.hibernate.persister.entity.AbstractEntityPersister;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.lb.springmvc.dao.base.GenericDao;
 import com.lb.springmvc.util.GenericsUtils;
 
 /**
@@ -55,8 +59,8 @@ public class GenericDaoImpl<T> implements GenericDao<T> {
 
 	/**
 	 * @Title: getEntityName
-	 * @Description: 返回的源代码中的基础类的简单名称
-	 * 定义泛型方法时，必须在返回值前边加一个<T>，来声明这是一个泛型方法，持有一个泛型T，然后才可以用泛型T作为方法的返回值。
+	 * @Description: 返回的源代码中的基础类的简单名称 定义泛型方法时，必须在返回值前边加一个
+	 *               <T>，来声明这是一个泛型方法，持有一个泛型T，然后才可以用泛型T作为方法的返回值。
 	 * @return
 	 * @return: String
 	 */
@@ -84,6 +88,7 @@ public class GenericDaoImpl<T> implements GenericDao<T> {
 
 	/**
 	 * 删除一个或者多个实体对象
+	 * 
 	 * @param keyName
 	 *            条件名称
 	 * @param entityIds
@@ -147,15 +152,53 @@ public class GenericDaoImpl<T> implements GenericDao<T> {
 		session.flush();
 		session.clear();
 	}
-	
+
 	/**
 	 * 根据object条件获取全部数据
+	 * 
 	 * @return 全体数据
 	 */
 	@SuppressWarnings("unchecked")
 	public List<T> getByObject(T object) {
 		Criteria criteria = getSession().createCriteria(this.entityClass);
 		criteria.add(Example.create(object));
-		return (List<T>)criteria.list();
+		return (List<T>) criteria.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<String, String> getForeignKey() {
+		SessionFactory factory = getSessionFactory();
+		Map<String, String> map = new HashMap<String, String>();
+		AbstractEntityPersister classMetadata = (AbstractEntityPersister) factory.getClassMetadata(this.entityClass);
+		String tableNameAll = classMetadata.getTableName().toUpperCase();
+		String[] tableNames = tableNameAll.split("\\.");
+		if (tableNames.length > 1) {
+			String tableName = tableNames[1];
+			String hql = "select c.table_name,d.column_name from user_constraints a "
+					+ "left join user_constraints c on c.r_constraint_name=a.constraint_name "
+					+ "left join user_cons_columns d  on c.constraint_name=d.constraint_name "
+					+ "where  a.constraint_type='P'  and  a.table_name='" + tableName + "' order by a.table_name";
+			Query query = getSession().createSQLQuery(hql);
+			List<Object[]> list = query.list();
+			if (list != null) {
+				for (Object[] obj : list) {
+					if (obj[0] != null && obj[1] != null) {
+						map.put(obj[0].toString(), obj[1].toString());
+					}
+				}
+			}
+		}
+		return map;
+	}
+
+	public int hasTableRecords(String tableName, String FK, Serializable... entityIds) {
+		String hql = "select " + FK + " from " + tableName + " where " + FK + " in(:ids)";
+		Query query = getSession().createSQLQuery(hql);
+		query.setParameterList("ids", entityIds);
+		if (query.list() != null) {
+			return query.list().size();
+		} else {
+			return 0;
+		}
 	}
 }
